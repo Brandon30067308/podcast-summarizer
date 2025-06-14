@@ -1,4 +1,3 @@
 [build]
-  root = "apps/node"         # Path to your Node backend in the monorepo
-  buildCommand = "yarn install && yarn build"
-  startCommand = "yarn start"
+builder = "DOCKERFILE"
+dockerfilePath = "./Dockerfile"
