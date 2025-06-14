@@ -51,6 +51,10 @@ router.get("/:id", (async (req: Request, res: Response) => {
         podcastEpisodeId: episodeId,
       },
     });
+
+    return res.json({
+      summary: episodeSummary,
+    });
   } catch (error: unknown) {
     console.log("error fetching podcast episode summary", error);
 

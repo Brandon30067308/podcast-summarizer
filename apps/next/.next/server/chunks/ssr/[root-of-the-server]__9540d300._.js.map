@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 39, "column": 0}, "map": {"version":3,"sources":["file:///Users/brandonchikezie/Desktop/work/podcast/apps/next/src/components/providers/index.tsx"],"sourcesContent":["\"use client\";\n\nimport { QueryClient, QueryClientProvider } from \"@tanstack/react-query\";\nimport { Toaster } from \"sonner\";\n\nconst queryClient = new QueryClient();\n\nexport default function Providers({ children }: { children: React.ReactNode }) {\n  return (\n    <QueryClientProvider client={queryClient}>\n      <Toaster />\n      {children}\n    </QueryClientProvider>\n  );\n}\n"],"names":[],"mappings":";;;;AAEA;AAAA;AACA;AAHA;;;;AAKA,MAAM,cAAc,IAAI,6KAAA,CAAA,cAAW;AAEpB,SAAS,UAAU,EAAE,QAAQ,EAAiC;IAC3E,qBACE,8OAAC,sLAAA,CAAA,sBAAmB;QAAC,QAAQ;;0BAC3B,8OAAC,wIAAA,CAAA,UAAO;;;;;YACP;;;;;;;AAGP","debugId":null}}]
-}

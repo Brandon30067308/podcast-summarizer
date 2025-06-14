@@ -2,6 +2,7 @@
   "name": "podcast",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2017",
@@ -29,7 +30,7 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
