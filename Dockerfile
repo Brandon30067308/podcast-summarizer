@@ -8,7 +8,7 @@ WORKDIR /app
 COPY ../../package.json ../../yarn.lock ./
 
 # Install workspace tools
-RUN npm install -g yarn && yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile
 
 # Copy backend project
 COPY . .
