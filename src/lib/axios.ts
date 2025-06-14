@@ -1,5 +1,7 @@
+"use server";
+
 import axios from "axios";
-import { getURL } from "./utils";
+import { getURL } from "./utils/config";
 
 const axiosClient = axios.create({
   baseURL: getURL(),

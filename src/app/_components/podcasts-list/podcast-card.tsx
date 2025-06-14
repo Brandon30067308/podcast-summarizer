@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import axiosClient from "@/lib/axios";
-import { getURL } from "@/lib/utils";
+import { getURL } from "@/lib/utils/config";
 import { formatDistanceToNow } from "date-fns";
 import { formatDuration } from "date-fns/formatDuration";
 import { Brain, PlayIcon } from "lucide-react";
