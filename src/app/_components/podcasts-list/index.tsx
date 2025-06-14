@@ -1,9 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import axiosClient from "@/lib/axios";
 import { ApiResponse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { SearchResponse as PodcastApiSearchResponse } from "podcast-api";
 import { useEffect, useRef, useState } from "react";
@@ -29,17 +29,25 @@ export default function PodcastsList({
   const [debouncedQuery] = useDebounce(query, 600);
   const podcastsListRef = useRef<HTMLDivElement>(null);
 
-  const { isPending, error, data } = useQuery<PodcastApiSearchResponse>({
+  const { isFetching, error, data } = useQuery<PodcastApiSearchResponse>({
     queryKey: ["podcasts", offset, debouncedQuery],
     initialData: initPodcastSearchResponse ?? undefined,
-    queryFn: () =>
-      axiosClient
-        .get(
-          `/api/podcasts?offset=${offset}&page_size=${pageSize}&search=${debouncedQuery}`
-        )
-        .then(async (res) => {
-          return res.data as ApiResponse<PodcastApiSearchResponse>;
-        }),
+    queryFn: async () => {
+      try {
+        const res = await axios.get<ApiResponse<PodcastApiSearchResponse>>(
+          `/api/podcast-episodes?offset=${offset}&page_size=${pageSize}&search=${debouncedQuery}`
+        );
+        return res.data;
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response) {
+          throw new Error(
+            (err.response.data as ApiResponse<PodcastApiSearchResponse>)
+              ?.error ?? "An unknown error occurred"
+          );
+        }
+        throw err;
+      }
+    },
   });
 
   const podcastResults = data?.results || [];
@@ -49,11 +57,11 @@ export default function PodcastsList({
     setOffset(0);
   }, [debouncedQuery]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (podcastsListRef.current) {
       podcastsListRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [data]);
+  }, [data]);*/
 
   return (
     <div ref={podcastsListRef} className="flex flex-col gap-6">
@@ -81,7 +89,7 @@ export default function PodcastsList({
             {error.message}
           </p>
         )}
-        {isPending && (
+        {isFetching && (
           <div className="text-muted-foreground flex items-center justify-center gap-2">
             <Loader2 className="size-4 animate-spin" />
             <p className="text-muted-foreground text-sm font-medium">

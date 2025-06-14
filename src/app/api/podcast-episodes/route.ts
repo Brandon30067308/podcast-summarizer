@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       {
-        error: "Failed to fetch podcasts.",
+        error: "Failed to fetch podcasts. Please try again later.",
       },
       { status: 500 }
     );

@@ -12,8 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import axiosClient from "@/lib/axios";
-import { getURL } from "@/lib/utils/config";
+import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { formatDuration } from "date-fns/formatDuration";
 import { Brain, PlayIcon } from "lucide-react";
@@ -39,7 +38,9 @@ export default function PodcastCard({ episode }: Props) {
         { id: episode.id }
       );
 
-      const initResponse = await axiosClient.get(`/api/podcasts/${episode.id}`);
+      const initResponse = await axios.get(
+        `/api/podcast-episodes/${episode.id}`
+      );
 
       const existingEpisodeSummary = initResponse.data?.summary;
       if (existingEpisodeSummary) {
@@ -49,7 +50,7 @@ export default function PodcastCard({ episode }: Props) {
       }
 
       const response = await fetch(
-        `${getURL()}/api/podcasts/${episode.id}/summarize`,
+        `/api/podcast-episodes/${episode.id}/summarize`,
         {
           method: "POST",
         }

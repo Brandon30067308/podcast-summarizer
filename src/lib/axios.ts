@@ -1,11 +1,12 @@
-"use server";
-
 import axios from "axios";
 import { getURL } from "./utils/config";
 
 const axiosClient = axios.create({
   baseURL: getURL(),
   timeout: 360000,
+  validateStatus: function (status) {
+    return status >= 200 && status < 300;
+  },
   headers: {
     "Content-Type": "application/json",
   },
