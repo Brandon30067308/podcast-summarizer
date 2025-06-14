@@ -15,7 +15,7 @@ const PAGE_SIZE = 10;
 
 export default async function Home() {
   const initOffset = 0;
-  const initQuery = "Popular";
+  const initQuery = "Star wars";
   let initPodcastSearchResponse: PodcastApiSearchResponse | null = null;
   let message: string | null = null;
 
@@ -38,6 +38,7 @@ export default async function Home() {
       <div className="container">
         <PodcastsList
           pageSize={PAGE_SIZE}
+          initQuery={initQuery}
           initOffset={initOffset}
           initPodcastSearchResponse={initPodcastSearchResponse}
         />

@@ -13,17 +13,19 @@ import PodcastSearch from "./podcast-search";
 
 type Props = {
   pageSize: number;
+  initQuery: string;
   initOffset: number;
   initPodcastSearchResponse: PodcastApiSearchResponse | null;
 };
 
 export default function PodcastsList({
   pageSize,
+  initQuery,
   initOffset,
   initPodcastSearchResponse,
 }: Props) {
   const [offset, setOffset] = useState(initOffset);
-  const [query, setQuery] = useState("Popular");
+  const [query, setQuery] = useState(initQuery);
   const [debouncedQuery] = useDebounce(query, 600);
   const podcastsListRef = useRef<HTMLDivElement>(null);
 
