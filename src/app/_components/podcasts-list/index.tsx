@@ -1,0 +1,111 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import axiosClient from "@/lib/axios";
+import { ApiResponse } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { SearchResponse as PodcastApiSearchResponse } from "podcast-api";
+import { useEffect, useRef, useState } from "react";
+import { useDebounce } from "use-debounce";
+import PodcastCard from "./podcast-card";
+import PodcastSearch from "./podcast-search";
+
+type Props = {
+  pageSize: number;
+  initOffset: number;
+  initPodcastSearchResponse: PodcastApiSearchResponse | null;
+};
+
+export default function PodcastsList({
+  pageSize,
+  initOffset,
+  initPodcastSearchResponse,
+}: Props) {
+  const [offset, setOffset] = useState(initOffset);
+  const [query, setQuery] = useState("Popular");
+  const [debouncedQuery] = useDebounce(query, 600);
+  const podcastsListRef = useRef<HTMLDivElement>(null);
+
+  const { isPending, error, data } = useQuery<PodcastApiSearchResponse>({
+    queryKey: ["podcasts", offset, debouncedQuery],
+    initialData: initPodcastSearchResponse ?? undefined,
+    queryFn: () =>
+      axiosClient
+        .get(
+          `/api/podcasts?offset=${offset}&page_size=${pageSize}&search=${debouncedQuery}`
+        )
+        .then(async (res) => {
+          return res.data as ApiResponse<PodcastApiSearchResponse>;
+        }),
+  });
+
+  const podcastResults = data?.results || [];
+  const nextOffset = data?.next_offset;
+
+  useEffect(() => {
+    setOffset(0);
+  }, [debouncedQuery]);
+
+  useEffect(() => {
+    if (podcastsListRef.current) {
+      podcastsListRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [data]);
+
+  return (
+    <div ref={podcastsListRef} className="flex flex-col gap-6">
+      <div className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">Podcast Summarizer</h1>
+          <p className="text-muted-foreground text-sm font-medium">
+            Effortlessly generate concise summaries of your favorite podcasts.
+          </p>
+        </div>
+        <PodcastSearch query={query} setQuery={setQuery} />
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
+          {podcastResults.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {podcastResults.map((podcast) => (
+                <PodcastCard key={podcast.id} episode={podcast} />
+              ))}
+            </div>
+          )}
+        </div>
+        {error && (
+          <p className="text-destructive text-center text-sm font-medium">
+            {error.message}
+          </p>
+        )}
+        {isPending && (
+          <div className="text-muted-foreground flex items-center justify-center gap-2">
+            <Loader2 className="size-4 animate-spin" />
+            <p className="text-muted-foreground text-sm font-medium">
+              Loading podcasts...
+            </p>
+          </div>
+        )}
+        <div className="bg-background/80 sticky bottom-0 flex w-full items-center justify-center gap-4 py-6 backdrop-blur-sm">
+          <Button
+            disabled={offset < pageSize}
+            variant="outline"
+            onClick={() => setOffset((prevOffset) => prevOffset - pageSize)}
+          >
+            <ChevronLeft className="size-4" />
+            Previous
+          </Button>
+          <Button
+            disabled={!nextOffset}
+            variant="outline"
+            onClick={() => setOffset(nextOffset ?? 0)}
+          >
+            Next
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
