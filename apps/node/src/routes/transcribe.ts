@@ -4,6 +4,7 @@ import express, { Application, Request, Response, Router } from "express";
 import ffmpegPath from "ffmpeg-static";
 import fs from "fs";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import { uploadToS3 } from "../utils/s3";
 import { transcribeAudio } from "../utils/transcribe";
 
@@ -55,7 +56,7 @@ router.post("/", (async (req: Request, res: Response) => {
     }
 
     const cleanUp = [];
-    const key = `${Date.now()}_${crypto.randomUUID()}`;
+    const key = `${Date.now()}_${uuidv4()}`;
     const rawFilename = `raw-${key}.mp3`;
     const rawFilePath = path.join(TEMP_DIR, rawFilename);
     const compressedFilename = `compressed-${key}.mp3`;

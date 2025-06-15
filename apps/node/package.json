@@ -25,11 +25,13 @@
     "express": "^4.18.3",
     "ffmpeg-static": "^5.2.0",
     "podcast-api": "^2.0.4",
-    "prisma": "^6.9.0"
+    "prisma": "^6.9.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20",
+    "@types/uuid": "^10.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5"
   }
