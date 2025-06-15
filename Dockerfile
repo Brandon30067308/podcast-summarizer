@@ -4,17 +4,21 @@ FROM node:18-slim
 # Set working directory
 WORKDIR /app
 
-# Copy root package.json + lockfile + workspaces
-COPY ../../package.json ../../yarn.lock ./
+# Copy monorepo package.json and yarn.lock
+COPY package.json yarn.lock ./
 
-# Install workspace tools
-RUN yarn install --frozen-lockfile
-
-# Copy backend project
+# Copy the rest of the monorepo (Dockerignore will help keep size down)
 COPY . .
 
-# Optional: build TS
-# RUN yarn build
+# Install dependencies (workspace-aware)
+RUN yarn install --frozen-lockfile
 
+# Optional: build TypeScript backend
+WORKDIR /app/apps/node
+RUN yarn build
+
+# Expose server port
 EXPOSE 7070
+
+# Start the backend
 CMD ["yarn", "start"]
