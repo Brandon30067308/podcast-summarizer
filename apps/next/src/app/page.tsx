@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Effortlessly generate concise summaries of your favorite podcasts.",
 };
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 export default async function Home() {
   const initOffset = 0;
@@ -22,7 +22,7 @@ export default async function Home() {
 
   try {
     const response = await axiosClient.get(
-      `/api/podcast-episodes?offset=${initOffset}&page_size=${PAGE_SIZE}&search=${initQuery}`
+      `${process.env.NEXT_PUBLIC_NODE_API_URL}/api/podcast-episodes?offset=${initOffset}&page_size=${PAGE_SIZE}&search=${initQuery}`
     );
     initPodcastSearchResponse =
       response?.data as ApiResponse<PodcastApiSearchResponse>;

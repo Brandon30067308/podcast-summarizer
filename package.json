@@ -14,6 +14,7 @@
     "apps/*",
     "packages/*"
   ],
+  "packageManager": "yarn@1.22.22",
   "devDependencies": {
     "@types/axios": "^0.14.4",
     "prettier": "^3.2.5",

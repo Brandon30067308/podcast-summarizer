@@ -39,7 +39,7 @@ export default function PodcastCard({ episode }: Props) {
       );
 
       const initResponse = await axios.get(
-        `/api/podcast-episodes/${episode.id}`
+        `${process.env.NEXT_PUBLIC_NODE_API_URL}/api/podcast-episodes/${episode.id}`
       );
 
       const existingEpisodeSummary = initResponse.data?.summary;
@@ -50,7 +50,7 @@ export default function PodcastCard({ episode }: Props) {
       }
 
       const response = await fetch(
-        `/api/podcast-episodes/${episode.id}/summarize`,
+        `${process.env.NEXT_PUBLIC_NODE_API_URL}/api/podcast-episodes/${episode.id}/summarize`,
         {
           method: "POST",
         }
@@ -96,7 +96,7 @@ export default function PodcastCard({ episode }: Props) {
 
   return (
     <>
-      <Card key={episode.id} className="overflow-hidden pt-0 shadow-none">
+      <Card className="overflow-hidden pt-0 shadow-none">
         <CardHeader className="p-0">
           <div className="relative aspect-square w-full">
             <Image

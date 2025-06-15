@@ -35,7 +35,7 @@ export default function PodcastsList({
     queryFn: async () => {
       try {
         const res = await axios.get<ApiResponse<PodcastApiSearchResponse>>(
-          `/api/podcast-episodes?offset=${offset}&page_size=${pageSize}&search=${debouncedQuery}`
+          `${process.env.NEXT_PUBLIC_NODE_API_URL}/api/podcast-episodes?offset=${offset}&page_size=${pageSize}&search=${debouncedQuery}`
         );
         return res.data;
       } catch (err) {
@@ -50,7 +50,7 @@ export default function PodcastsList({
     },
   });
 
-  const podcastResults = data?.results || [];
+  const podcastEpisodes = data?.results || [];
   const nextOffset = data?.next_offset;
 
   useEffect(() => {
@@ -76,10 +76,10 @@ export default function PodcastsList({
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4">
-          {podcastResults.length > 0 && (
+          {podcastEpisodes.length > 0 && (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {podcastResults.map((podcast) => (
-                <PodcastCard key={podcast.id} episode={podcast} />
+              {podcastEpisodes.map((episode) => (
+                <PodcastCard key={episode.id} episode={episode} />
               ))}
             </div>
           )}

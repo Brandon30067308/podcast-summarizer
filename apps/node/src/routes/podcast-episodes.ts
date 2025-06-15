@@ -12,11 +12,9 @@ const router = express.Router();
 
 router.get("/", (async (req: Request, res: Response) => {
   try {
-    const { searchParams } = new URL(req.url);
-
-    const offset = searchParams.get("offset") || 0;
-    const pageSize = searchParams.get("page_size") || 10;
-    const search = searchParams.get("search") || "";
+    const offset = parseInt(req.query.offset as string) || 0;
+    const pageSize = parseInt(req.query.page_size as string) || 10;
+    const search = (req.query.search as string) || "";
 
     const searchResult = await postApiClient.search({
       q: search,
@@ -53,7 +51,7 @@ router.get("/:id", (async (req: Request, res: Response) => {
     });
 
     return res.json({
-      summary: episodeSummary,
+      ...(episodeSummary ?? {}),
     });
   } catch (error: unknown) {
     console.log("error fetching podcast episode summary", error);
@@ -64,7 +62,7 @@ router.get("/:id", (async (req: Request, res: Response) => {
   }
 }) as Application);
 
-router.get("/:id/summarize", (async (req: Request, res: Response) => {
+router.post("/:id/summarize", (async (req: Request, res: Response) => {
   try {
     const { id: episodeId } = req.params;
 
@@ -85,8 +83,9 @@ router.get("/:id/summarize", (async (req: Request, res: Response) => {
       })
     )?.data;
 
-    if (!podcastEpisode)
+    if (!podcastEpisode) {
       return res.status(404).json({ error: "Podcast episode not found." });
+    }
 
     const transcript =
       episodeSummary?.transcript ??
@@ -145,71 +144,61 @@ router.get("/:id/summarize", (async (req: Request, res: Response) => {
     });
 
     const stream = result.fullStream;
-    const encoder = new TextEncoder();
     let buffer = "";
     let parsed: string | null = null;
     let latestDate = Date.now();
 
-    const readableStream = new ReadableStream({
-      async start(controller) {
+    try {
+      for await (const chunk of stream) {
+        if (!chunk.type) continue;
+
+        if (chunk.type === "error") {
+          throw new Error(
+            (chunk as unknown as { error: string })?.error ?? "Unknown error"
+          );
+        }
+
+        const textDelta =
+          (chunk as unknown as { textDelta: string })?.textDelta ?? "";
+        buffer += textDelta;
+        res.write(textDelta);
+
         try {
-          for await (const chunk of stream) {
-            if (!chunk.type) continue;
+          parsed = buffer as string;
 
-            if (chunk.type === "error") {
-              throw new Error(
-                (chunk as unknown as { error: string })?.error ??
-                  "Unknown error"
-              );
-            }
-
-            buffer +=
-              (chunk as unknown as { textDelta: string })?.textDelta ?? "";
-            controller.enqueue(
-              encoder.encode(
-                (chunk as unknown as { textDelta: string })?.textDelta ?? ""
-              )
-            );
-
-            try {
-              parsed = buffer as string;
-
-              const now = Date.now();
-              if (parsed && now - latestDate > 5000) {
-                latestDate = now;
-                await prisma.podcastEpisodeSummary.update({
-                  where: {
-                    id: episodeSummary.id,
-                  },
-                  data: {
-                    summary: parsed,
-                  },
-                });
-              }
-            } catch (error) {
-              console.warn(error);
-            }
-          }
-        } catch (error: unknown) {
-          throw error;
-        } finally {
-          if (parsed) {
+          const now = Date.now();
+          if (parsed && now - latestDate > 5000) {
+            latestDate = now;
             await prisma.podcastEpisodeSummary.update({
               where: {
                 id: episodeSummary.id,
               },
               data: {
                 summary: parsed,
-                completed: true,
               },
             });
           }
-          controller.close();
+        } catch (error) {
+          console.warn(error);
         }
-      },
-    });
+      }
+    } catch (error: unknown) {
+      console.log("error ", error);
+    } finally {
+      if (parsed) {
+        await prisma.podcastEpisodeSummary.update({
+          where: {
+            id: episodeSummary.id,
+          },
+          data: {
+            summary: parsed,
+            completed: true,
+          },
+        });
+      }
 
-    return res.status(200).json({ summary: parsed });
+      res.end();
+    }
   } catch (error: unknown) {
     console.error(error);
     return res
