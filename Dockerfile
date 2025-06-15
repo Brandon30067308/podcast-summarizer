@@ -13,7 +13,6 @@ COPY . .
 # Install dependencies (workspace-aware)
 RUN yarn install --frozen-lockfile
 
-# Optional: build TypeScript backend
 WORKDIR /app/apps/node
 RUN yarn build
 

@@ -8,7 +8,7 @@
   "files": [],
   "references": [
     { "path": "packages/shared" },
-    { "path": "apps/frontend" },
-    { "path": "apps/backend" }
+    { "path": "apps/next" },
+    { "path": "apps/node" }
   ]
 }
